@@ -4,6 +4,7 @@ export type EventCategory = 'Communication'|'Experimentation'|'Construction'|'Di
 export type ActionType = 'WAIT'|'MOVE'|'SPEAK'|'INSPECT'|'PICK_UP'|'DROP'|'GATHER'|'PLACE'|'BUILD'|'USE'|'CRAFT_EXPERIMENT'|'GIVE'|'TAKE'|'WRITE'|'READ';
 export type BeliefStatus = 'KNOWN'|'LIKELY'|'UNCERTAIN'|'HYPOTHESIS'|'DISPUTED'|'DISPROVED';
 export type AIMode = 'MOCK'|'LIVING_MIND';
+export type AIThinkingMode = 'off'|'auto'|'on';
 
 export interface Position { x:number; y:number }
 export interface Tile extends Position { type:TileType; fertility:number; moisture:number; }
@@ -35,7 +36,7 @@ export interface ExperienceRecord { id:string; agentId:string; tick:number; cont
 export interface AIUsageTotals { requestCount:number; successCount:number; failureCount:number; fallbackCount:number; staleCount:number; totalLatencyMs:number; inputTokens:number; outputTokens:number; }
 export interface AgentAIUsage extends AIUsageTotals { agentId:string; }
 export interface ResearchCounters { reflections:number; beliefChanges:number; questionsCreated:number; questionsRevisited:number; intentionsCompleted:number; intentionsAbandoned:number; contradictions:number; knowledgeTransfers:number; }
-export interface AIState { mode:AIMode; provider:string; configured:boolean; pending:number; totals:AIUsageTotals; byAgent:Record<string,AgentAIUsage>; research:ResearchCounters; lastError?:string; }
+export interface AIState { mode:AIMode; provider:string; model:string; endpoint:string; thinkingMode:AIThinkingMode; configured:boolean; pending:number; lastRequestLatencyMs:number; totals:AIUsageTotals; byAgent:Record<string,AgentAIUsage>; research:ResearchCounters; lastError?:string; }
 export interface SimulationState {
   id:string; name:string; locale:string; seed:number; width:number; height:number; tiles:Tile[]; objects:WorldObject[]; structures:Structure[]; agents:Agent[];
   events:WorldEvent[]; concepts:NamedConcept[]; experiments:Experiment[]; researchMarkers:ResearchMarker[]; experiences:ExperienceRecord[];

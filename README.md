@@ -100,15 +100,18 @@ To enable Living Mind, copy `apps/server/.env.example` to the ignored `apps/serv
 
 ```dotenv
 AI_MODE=LIVING_MIND
-AI_BASE_URL=https://example.com/v1
-AI_API_KEY=your-server-side-key
-AI_MODEL=your-model
+AI_BASE_URL=http://127.0.0.1:8080/v1
+AI_API_KEY=local
+AI_MODEL=Qwen3-8B
 AI_LANGUAGE=cs-CZ
-AI_MAX_CONCURRENCY=2
-AI_TIMEOUT_MS=20000
+AI_THINKING_MODE=auto
+AI_MAX_CONCURRENCY=1
+AI_TIMEOUT_MS=30000
 ```
 
-Restart the world service after changing the mode. Keys never enter browser code. Responses are parsed with a bounded Zod schema, pass through the existing action validator and fall back to deterministic CognitiveCore behavior after invalid output or timeout. The server permits only one pending request per inhabitant, limits global concurrency and ignores stale responses.
+This configuration targets a local OpenAI-compatible llama.cpp server. `AI_API_KEY=local` is accepted because llama.cpp does not require a real key. Restart the world service after changing the mode. Keys never enter browser code. Responses are parsed with a bounded Zod schema, pass through the existing action validator and fall back to deterministic CognitiveCore behavior after invalid output or timeout. The server permits only one pending request per inhabitant, limits global concurrency and ignores stale responses.
+
+`AI_THINKING_MODE` accepts `off`, `auto`, or `on` and defaults to `auto`. For models whose configured name identifies them as Qwen-compatible, `auto` adds `/no_think` to ordinary decisions and speech, while reflection and memory consolidation requests receive `/think`. `off` disables thinking and `on` enables it. Other OpenAI-compatible models never receive Qwen-specific tags.
 
 For a deterministic headless 100-day individuality run:
 

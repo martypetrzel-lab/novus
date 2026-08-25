@@ -9,7 +9,7 @@ const simulation=new Simulation(createWorld(Number(process.env.NOVUS_SEED||78142
 const starts=new Map(simulation.state.agents.map(agent=>[agent.id,{x:agent.x,y:agent.y,distance:0}]));
 const pending=new Set<Promise<unknown>>();
 let scheduler:AIRequestScheduler|undefined;
-if(mode==='LIVING_MIND'){const provider=createAIProvider();scheduler=new AIRequestScheduler(provider);simulation.setAIMode(mode,provider.name,true)}
+if(mode==='LIVING_MIND'){const provider=createAIProvider();scheduler=new AIRequestScheduler(provider);simulation.setAIMode(mode,provider.name,true,{model:provider.model,endpoint:provider.endpoint,thinkingMode:provider.thinkingMode})}
 
 for(let tick=0;tick<days*240;tick++){
   const before=new Map(simulation.state.agents.map(agent=>[agent.id,{x:agent.x,y:agent.y}]));
