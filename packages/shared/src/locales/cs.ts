@@ -75,7 +75,7 @@ export const simulationCs = {
     writeThought: 'Značky mohou uchovat toto pozorování pro někoho, kdo přijde později.', writeIntention: 'Zanechat krátkou trvalou poznámku o osobním pozorování.',
     gatherThought: (kind:string) => `Předmět „${kind}“ může být užitečný nebo něco odhalit.`, gatherIntention: (kind:string) => `Prozkoumat a sebrat blízký předmět „${kind}“.`,
     wanderThought: 'Nic není naléhavé; cesta k neznámému místu může přinést nové pozorování.', wanderIntention: 'Toulat se a všímat si proměn krajiny.',
-    criticCollapse: 'Předchozí uspořádání selhalo. Použij menší základnu a vyhni se nasycené půdě.', criticFatigue: 'Únava může dlouhou cestu zbytečně ztížit.', waitAndReconsider: 'odpočinout si a znovu situaci promyslet',
+    criticCollapse: 'Předchozí uspořádání selhalo. Použij menší základnu a vyhni se nasycené půdě.', criticFatigue: 'Únava může dlouhou cestu zbytečně ztížit.', waitAndReconsider: 'odpočinout si a znovu situaci promyslet', failureConcern: 'Vyhnout se opakování nedávných neúspěchů a zjistit jejich příčinu.', repeatedSuccessInterest: 'Vrátit se k činnosti, která se opakovaně osvědčila.',
     reflection: (result:string) => `Výsledek zněl: „${result}“ Měl bych ho porovnat se svým dosavadním přesvědčením a při příštím pokusu věnovat pozornost okolním podmínkám.`, identityCaution: ' Nedávné neúspěchy tě naučily přistupovat k předpokladům opatrněji.',
   },
   learning: {

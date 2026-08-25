@@ -3,6 +3,7 @@ export type Weather = 'clear'|'cloudy'|'rain';
 export type EventCategory = 'Communication'|'Experimentation'|'Construction'|'Discovery'|'Social'|'Health'|'Movement'|'Other';
 export type ActionType = 'WAIT'|'MOVE'|'SPEAK'|'INSPECT'|'PICK_UP'|'DROP'|'GATHER'|'PLACE'|'BUILD'|'USE'|'CRAFT_EXPERIMENT'|'GIVE'|'TAKE'|'WRITE'|'READ';
 export type BeliefStatus = 'KNOWN'|'LIKELY'|'UNCERTAIN'|'HYPOTHESIS'|'DISPUTED'|'DISPROVED';
+export type AIMode = 'MOCK'|'LIVING_MIND';
 
 export interface Position { x:number; y:number }
 export interface Tile extends Position { type:TileType; fertility:number; moisture:number; }
@@ -18,25 +19,33 @@ export interface HistoryEntry { id:string; day:number; tick:number; text:string;
 export interface Reflection { id:string; tick:number; summary:string; trigger:string; }
 export interface Appearance { skin:string; hair:string; clothing:string; accessory:string; body:'slight'|'average'|'broad'; }
 export interface AgentAction { type:ActionType; target?:Position; objectId?:string; description?:string; targetAgentId?:string; speech?:string; }
+export interface AgentMindState { intentionSinceTick:number; intentionReason?:string; expectedOutcome?:string; pendingRequestId?:string; pendingSinceTick?:number; lastRelevantMemoryIds:string[]; identityDevelopments:string[]; recentFailures:string[]; recentSuccesses:string[]; visitedRegions:string[]; }
 export interface Agent {
   id:string; name:string; age:number; appearance:Appearance; character:string; biography:string; x:number; y:number;
   activity:string; intention:string; thoughtSummary:string; sensations:string[]; health:number; hunger:number; thirst:number; fatigue:number; temperature:number;
   inventory:{kind:string;amount:number;description:string}[]; memories:Memory[]; beliefs:Belief[]; skills:Skill[]; motivations:Motivation[]; questions:string[];
   knownPeople:KnownPerson[]; conversations:Conversation[]; history:HistoryEntry[]; reflections:Reflection[]; actionHistory:AgentAction[]; recentObservations:string[];
-  namedConcepts:string[]; path:Position[]; action?:AgentAction; actionStartedTick:number; lastDecisionTick:number; lastReflectionTick:number; aiStatus:'idle'|'thinking'|'backoff';
+  namedConcepts:string[]; path:Position[]; action?:AgentAction; actionStartedTick:number; lastDecisionTick:number; lastReflectionTick:number; aiStatus:'idle'|'queued'|'thinking'|'backoff'; mind:AgentMindState;
 }
 export interface WorldEvent { id:string; tick:number; day:number; hour:number; category:EventCategory; text:string; agentIds:string[]; important?:boolean; }
 export interface NamedConcept { id:string; name:string; creatorId:string; description:string; firstUsage:number; knownBy:string[]; }
 export interface Experiment { id:string; agentId:string; tick:number; description:string; materials:string[]; outcome:'success'|'partial'|'failure'|'unexpected'; observation:string; }
 export interface ResearchMarker { id:string; tick:number; day:number; label:string; description:string; }
-export interface ExperienceRecord { id:string; agentId:string; tick:number; context:string; relevantMemories:string[]; beliefs:string[]; decision:string; action:AgentAction; worldResult:string; reflection?:string; laterOutcome?:string; }
+export interface ExperienceRecord { id:string; agentId:string; tick:number; context:string; relevantMemories:string[]; beliefs:string[]; motivations?:string[]; identitySnapshot?:string; requestId?:string; mode?:AIMode; decision:string; action:AgentAction; expectedOutcome?:string; worldResult:string; reflection?:string; laterOutcome?:string; }
+export interface AIUsageTotals { requestCount:number; successCount:number; failureCount:number; fallbackCount:number; staleCount:number; totalLatencyMs:number; inputTokens:number; outputTokens:number; }
+export interface AgentAIUsage extends AIUsageTotals { agentId:string; }
+export interface ResearchCounters { reflections:number; beliefChanges:number; questionsCreated:number; questionsRevisited:number; intentionsCompleted:number; intentionsAbandoned:number; contradictions:number; knowledgeTransfers:number; }
+export interface AIState { mode:AIMode; provider:string; configured:boolean; pending:number; totals:AIUsageTotals; byAgent:Record<string,AgentAIUsage>; research:ResearchCounters; lastError?:string; }
 export interface SimulationState {
   id:string; name:string; locale:string; seed:number; width:number; height:number; tiles:Tile[]; objects:WorldObject[]; structures:Structure[]; agents:Agent[];
   events:WorldEvent[]; concepts:NamedConcept[]; experiments:Experiment[]; researchMarkers:ResearchMarker[]; experiences:ExperienceRecord[];
-  tick:number; year:number; day:number; hour:number; speed:1|2|5|10; paused:boolean; weather:Weather; weatherUntil:number; status:'running'|'paused'|'saving'; createdAt:string; updatedAt:string;
+  tick:number; year:number; day:number; hour:number; speed:1|2|5|10; paused:boolean; weather:Weather; weatherUntil:number; status:'running'|'paused'|'saving'; ai:AIState; createdAt:string; updatedAt:string;
 }
 export interface Perception { tick:number; location:Position; approximateTime:string; weather:Weather; terrain:string[]; objects:WorldObject[]; people:{id:string;name:string;x:number;y:number;activity:string}[]; structures:Structure[]; sounds:string[]; sensations:string[]; observations:string[]; }
-export interface Decision { thought_summary:string; current_intention:string; action:AgentAction; speech:string|null; }
+export interface Decision { thought_summary:string; current_intention:string; action:AgentAction; speech:string|null; reason_for_change?:string; question?:string; expected_outcome?:string; }
+export interface MindIdentityContext { name:string; age:number; biography:string; temperament:string; identityDevelopments:string[]; recentFailures:string[]; recentSuccesses:string[]; knownConcepts:string[]; }
+export interface RelationshipContext { agentId:string; name:string; impressions:string[]; rememberedInteractions:string[]; }
+export interface MindDecisionContext { requestTick:number; identity:MindIdentityContext; currentSituation:{location:Position;time:string;weather:Weather;activity:string;sensations:string[]}; perception:Perception; relevantMemories:Memory[]; relevantBeliefs:Belief[]; motivations:Motivation[]; unresolvedQuestions:string[]; nearbyPeople:RelationshipContext[]; recentPersonalHistory:HistoryEntry[]; currentIntention:string; intentionSinceTick:number; recentActionPattern:string; }
 
 export const distance = (a:Position,b:Position) => Math.hypot(a.x-b.x,a.y-b.y);
 export const uid = (prefix:string,tick=Date.now()) => `${prefix}_${tick.toString(36)}_${Math.random().toString(36).slice(2,8)}`;

@@ -86,6 +86,8 @@ If Nara discovers a technique, only Nara knows it. Another inhabitant may observ
 
 ## AI providers
 
+Phase 2 supports two explicit modes. `MOCK` is the default deterministic CognitiveCore and requires no API. `LIVING_MIND` sends bounded, local and personal decision contexts to an external OpenAI-compatible provider without blocking the simulation loop.
+
 `packages/ai` defines:
 
 - `AIProvider.generateDecision()`
@@ -94,15 +96,27 @@ If Nara discovers a technique, only Nara knows it. Another inhabitant may observ
 - `MockAIProvider`
 - `OpenAICompatibleProvider`
 
-To configure an OpenAI-compatible server, add values to `apps/server/.env`:
+To enable Living Mind, copy `apps/server/.env.example` to the ignored `apps/server/.env` file and configure:
 
 ```dotenv
+AI_MODE=LIVING_MIND
 AI_BASE_URL=https://example.com/v1
 AI_API_KEY=your-server-side-key
 AI_MODEL=your-model
+AI_LANGUAGE=cs-CZ
+AI_MAX_CONCURRENCY=2
+AI_TIMEOUT_MS=20000
 ```
 
-Keys never enter browser code. Responses are parsed with a bounded Zod schema. Invalid output falls back to a safe `WAIT`; requests retry with exponential backoff. The neutral system prompt avoids priming institutions or familiar social structures. The current autonomous scheduler uses the deterministic cognitive core by default, while the provider layer is ready for asynchronous decision replacement in the next iteration.
+Restart the world service after changing the mode. Keys never enter browser code. Responses are parsed with a bounded Zod schema, pass through the existing action validator and fall back to deterministic CognitiveCore behavior after invalid output or timeout. The server permits only one pending request per inhabitant, limits global concurrency and ignores stale responses.
+
+For a deterministic headless 100-day individuality run:
+
+```bash
+npm run research:100days
+```
+
+Use `NOVUS_RESEARCH_DAYS=1 AI_MODE=LIVING_MIND` for a deliberately short configured external-model research run.
 
 ## Persistence and snapshots
 

@@ -1,6 +1,6 @@
-import { simulationCs, type Agent, type Belief, type Decision, type Memory, type Perception, type SimulationState } from '@novus/shared';
+import { simulationCs, type Agent, type Belief, type Decision, type Memory, type MindDecisionContext, type Perception, type SimulationState } from '@novus/shared';
 
-const words=(text:string)=>new Set(text.toLowerCase().match(/[a-z]{3,}/g)||[]);
+const words=(text:string)=>new Set(text.toLowerCase().match(/[\p{L}]{3,}/gu)||[]);
 export class PerceptionProcessor {
   build(state:SimulationState,agent:Agent,radius=12):Perception{
     const near=(x:number,y:number)=>Math.hypot(agent.x-x,agent.y-y)<=radius;
@@ -49,10 +49,14 @@ export class DecisionActor {
   }
 }
 export class DecisionCritic { review(agent:Agent,decision:Decision,memories:Memory[]){if(decision.action.type==='BUILD'&&memories.some(m=>m.text.includes('selhalo')||m.text.includes('collapsed'))) return simulationCs.cognition.criticCollapse;if(decision.action.type==='MOVE'&&agent.fatigue>.82)return simulationCs.cognition.criticFatigue;return null} }
-export class ReflectionEngine { shouldReflect(agent:Agent,result:string,tick:number){return tick-agent.lastReflectionTick>90&&/(selhal|nečekan|naučil|zran|failed|unexpected|learned|injured)/i.test(result)} summarize(agent:Agent,result:string){return simulationCs.cognition.reflection(result)} }
-export class IdentityManager { evolve(agent:Agent,reflection:string){if((reflection.includes('selhal')||reflection.includes('failed'))&&!agent.character.includes('opatr')) agent.character+=simulationCs.cognition.identityCaution;} }
+export class ReflectionEngine { shouldReflect(agent:Agent,result:string,tick:number){return tick-agent.lastReflectionTick>90&&/(selhal|nečekan|naučil|zran|vydrž|první|rozporn|mluvil s|failed|unexpected|learned|injured)/i.test(result)} summarize(agent:Agent,result:string){return simulationCs.cognition.reflection(result)} }
+export class IdentityManager { evolve(agent:Agent,reflection:string){if((reflection.includes('selhal')||agent.mind.recentFailures.length>=3)&&agent.mind.recentFailures.length>=3&&!agent.character.includes('opatr')) agent.character+=simulationCs.cognition.identityCaution;} }
 
 export class CognitiveCore {
   perception=new PerceptionProcessor(); memory=new MemoryRetriever(); beliefs=new BeliefSystem(); motivation=new MotivationEngine(); curiosity=new CuriosityEngine(); actor=new DecisionActor(); critic=new DecisionCritic(); reflection=new ReflectionEngine(); identity=new IdentityManager();
   decide(state:SimulationState,agent:Agent,random:()=>number,repetitive=false){const p=this.perception.build(state,agent);const m=this.memory.retrieve(agent,p);const b=this.beliefs.relevant(agent,m);this.motivation.update(agent,p);const c=this.curiosity.generate(agent,p,repetitive);const d=this.actor.propose(agent,p,c,random);const review=this.critic.review(agent,d,m);if(review){d.thought_summary+=` Kritika: ${review}`;if(agent.fatigue>.82)d.action={type:'WAIT',description:simulationCs.cognition.waitAndReconsider};}return {perception:p,memories:m,beliefs:b,decision:d,critic:review};}
+  buildMindContext(state:SimulationState,agent:Agent,repetitive=false):MindDecisionContext{
+    const perception=this.perception.build(state,agent);const memories=this.memory.retrieve(agent,perception,8);const beliefs=this.beliefs.relevant(agent,memories,6);const motivations=this.motivation.update(agent,perception);const pattern=repetitive?agent.actionHistory.slice(-8).map(action=>action.type).join(' → '):'';agent.mind.lastRelevantMemoryIds=memories.map(memory=>memory.id);
+    return {requestTick:state.tick,identity:{name:agent.name,age:agent.age,biography:agent.biography,temperament:agent.character,identityDevelopments:agent.mind.identityDevelopments.slice(-6),recentFailures:agent.mind.recentFailures.slice(-5),recentSuccesses:agent.mind.recentSuccesses.slice(-5),knownConcepts:agent.namedConcepts.slice(-8)},currentSituation:{location:{x:agent.x,y:agent.y},time:perception.approximateTime,weather:perception.weather,activity:agent.activity,sensations:agent.sensations},perception,relevantMemories:memories,relevantBeliefs:beliefs,motivations,unresolvedQuestions:agent.questions.slice(0,8),nearbyPeople:perception.people.map(person=>{const known=agent.knownPeople.find(item=>item.agentId===person.id);return {agentId:person.id,name:person.name,impressions:known?.impressions.slice(-4)||[],rememberedInteractions:known?.rememberedInteractions.slice(-4)||[]}}),recentPersonalHistory:agent.history.slice(-8),currentIntention:agent.intention,intentionSinceTick:agent.mind.intentionSinceTick,recentActionPattern:pattern};
+  }
 }

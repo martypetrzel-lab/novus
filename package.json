@@ -13,6 +13,7 @@
     "build": "vinext build && npm run build -w @novus/server",
     "start": "vinext start",
     "test": "vitest run --config vitest.config.ts",
+    "research:100days": "tsx scripts/research-100days.ts",
     "db:generate": "prisma generate --schema apps/server/prisma/schema.prisma",
     "db:migrate": "npm run db:migrate -w @novus/server",
     "db:push": "prisma db push --schema apps/server/prisma/schema.prisma",
