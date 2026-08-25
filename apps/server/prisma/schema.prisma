@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model World {
+  id        String   @id
+  name      String
+  seed      Int
+  width     Int
+  height    Int
+  state     String
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model TileState {
+  id      String @id
+  worldId String
+  x       Int
+  y       Int
+  type    String
+  data    String
+  @@unique([worldId, x, y])
+  @@index([worldId, type])
+}
+
+model AgentRecord {
+  id        String   @id
+  worldId   String
+  name      String
+  age       Int
+  x         Int
+  y         Int
+  data      String
+  updatedAt DateTime @updatedAt
+  @@index([worldId, name])
+}
+
+model Appearance {
+  id      String @id
+  agentId String @unique
+  data    String
+}
+
+model Memory {
+  id         String @id
+  agentId    String
+  type       String
+  tick       Int
+  importance Float
+  text       String
+  metadata   String
+  @@index([agentId, type, tick])
+}
+
+model Belief {
+  id          String @id
+  agentId     String
+  status      String
+  statement   String
+  evidence    String
+  updatedTick Int
+  @@index([agentId, status])
+}
+
+model Skill {
+  id      String @id
+  agentId String
+  name    String
+  data    String
+  @@index([agentId, name])
+}
+
+model Motivation {
+  id          String @id
+  agentId     String
+  strength    Float
+  text        String
+  source      String
+  createdTick Int
+  @@index([agentId, strength])
+}
+
+model Conversation {
+  id           String @id
+  worldId      String
+  tick         Int
+  participants String
+  @@index([worldId, tick])
+}
+
+model Message {
+  id             String @id
+  conversationId String
+  speakerId      String
+  text           String
+  tick           Int
+  @@index([conversationId, tick])
+}
+
+model Inventory {
+  id      String @id
+  agentId String
+  kind    String
+  amount  Int
+  data    String
+  @@index([agentId, kind])
+}
+
+model ObjectRecord {
+  id      String @id
+  worldId String
+  kind    String
+  x       Int
+  y       Int
+  data    String
+  @@index([worldId, kind])
+}
+
+model StructureRecord {
+  id        String @id
+  worldId   String
+  creatorId String
+  x         Int
+  y         Int
+  data      String
+  @@index([worldId, creatorId])
+}
+
+model EventRecord {
+  id       String @id
+  worldId  String
+  category String
+  tick     Int
+  text     String
+  data     String
+  @@index([worldId, category, tick])
+}
+
+model ActionRecord {
+  id      String @id
+  agentId String
+  type    String
+  tick    Int
+  data    String
+  @@index([agentId, tick])
+}
+
+model NamedConceptRecord {
+  id        String @id
+  worldId   String
+  creatorId String
+  name      String
+  data      String
+  @@index([worldId, name])
+}
+
+model ReflectionRecord {
+  id      String @id
+  agentId String
+  tick    Int
+  summary String
+  trigger String
+  @@index([agentId, tick])
+}
+
+model ExperimentRecord {
+  id      String @id
+  worldId String
+  agentId String
+  tick    Int
+  outcome String
+  data    String
+  @@index([worldId, outcome])
+}
+
+model ExperienceDataset {
+  id           String @id
+  worldId      String
+  agentId      String
+  tick         Int
+  context      String
+  decision     String
+  action       String
+  worldResult  String
+  reflection   String?
+  laterOutcome String?
+  @@index([worldId, agentId, tick])
+}
+
+model SimulationSettings {
+  id        String   @id
+  worldId   String   @unique
+  data      String
+  updatedAt DateTime @updatedAt
+}
+
+model Snapshot {
+  id               String   @id
+  worldId          String
+  name             String
+  state            String
+  parentSnapshotId String?
+  tick             Int
+  createdAt        DateTime @default(now())
+  @@index([worldId, createdAt])
+}

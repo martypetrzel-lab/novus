@@ -1,0 +1,58 @@
+{
+  "name": "novus",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "concurrently -k -n WORLD,OBSERVER -c yellow,green \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:web": "vinext dev",
+    "dev:server": "npm run dev -w @novus/server",
+    "build": "vinext build && npm run build -w @novus/server",
+    "start": "vinext start",
+    "test": "vitest run --config vitest.config.ts",
+    "db:generate": "prisma generate --schema apps/server/prisma/schema.prisma",
+    "db:migrate": "npm run db:migrate -w @novus/server",
+    "db:push": "prisma db push --schema apps/server/prisma/schema.prisma",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern generated"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/websocket": "^11.2.0",
+    "@prisma/client": "^6.16.3",
+    "fastify": "^5.6.1",
+    "lucide-react": "^0.468.0",
+    "next": "16.2.6",
+    "pixi.js": "^8.14.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "zod": "^4.1.11",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "1.37.1",
+    "@cloudflare/workers-types": "4.20260515.1",
+    "@openai/sites-vite-plugin": "^0.1.0 || ^0.2.0",
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
+    "@vitejs/plugin-rsc": "0.5.26",
+    "eslint": "9.39.4",
+    "concurrently": "^9.2.1",
+    "eslint-config-next": "16.2.6",
+    "prisma": "^6.16.3",
+    "react-server-dom-webpack": "19.2.6",
+    "tailwindcss": "4.2.1",
+    "tsx": "^4.20.6",
+    "typescript": "5.9.3",
+    "vinext": "1.0.0-beta.3",
+    "vite": "8.0.13",
+    "vitest": "^3.2.4",
+    "wrangler": "4.92.0"
+  },
+  "type": "module"
+}

@@ -1,0 +1,2 @@
+.filters{overflow:hidden;flex-wrap:wrap}.events{height:calc(100% - 165px)}.memory-list li{grid-template-columns:48px minmax(0,1fr)!important;padding-left:0!important}.memory-list li time{position:static!important}
+@media(max-width:980px){.events{height:calc(100% - 132px)}}
